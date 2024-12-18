@@ -51,6 +51,6 @@ async function init(){
             await s3Client.send(command)
             console.log("Uploaded.....", filePath)
         }
-        console.log('Done....')
+        console.log('Done........')
     })
 }
