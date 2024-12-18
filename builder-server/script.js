@@ -7,7 +7,7 @@ const mime = require('mime-types')
 
 // Creating an S3 client
 const s3Client = new S3Client({
-    region: 'us-east-1',
+    region: '',
     credentials: {
         accessKeyId: '',
         secretAccessKey: ''
