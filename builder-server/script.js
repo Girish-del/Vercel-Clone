@@ -7,7 +7,7 @@ const mime = require('mime-types')
 
 // Creating an S3 client
 const s3Client = new S3Client({
-    region: '',
+    region: 'us-east-1',
     credentials: {
         accessKeyId: '',
         secretAccessKey: ''
@@ -42,15 +42,18 @@ async function init(){
             console.log("Uploading..... ", filePath)
 
             const command = new PutObjectCommand({
-                Bucket: '',
+                Bucket: 'vercel-clone-project-01',
                 Key: `__outputs/${PROJECT_ID}/${filePath}`,
                 Body: fs.createReadStream(filePath),
                 ContentType: mime.lookup(filePath)
             })
 
             await s3Client.send(command)
+
             console.log("Uploaded.....", filePath)
         }
         console.log('Done........')
     })
 }
+
+init()
