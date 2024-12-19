@@ -1,7 +1,7 @@
 const { exec } = require('child_process')
 const path = require('path')
 const fs = require('fs')
-const { S3Client, PutObjectCommand} = require('@aws-sdk/client-s3')
+const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3')
 const mime = require('mime-types')
 
 
@@ -36,14 +36,15 @@ async function init(){
         const distFolderPath = path.join(__dirname, 'output', 'dist')
         const distFolderContents = fs.readdirSync(distFolderPath, {recursive: true})
 
-        for(const filePath of distFolderContents){
+        for(const file of distFolderContents){
+            const filePath = path.join(distFolderPath, file)
             if(fs.lstatSync(filePath).isDirectory()) continue;
 
             console.log("Uploading..... ", filePath)
 
             const command = new PutObjectCommand({
                 Bucket: 'vercel-clone-project-01',
-                Key: `__outputs/${PROJECT_ID}/${filePath}`,
+                Key: `__outputs/${PROJECT_ID}/${file}`,
                 Body: fs.createReadStream(filePath),
                 ContentType: mime.lookup(filePath)
             })
