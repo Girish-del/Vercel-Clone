@@ -5,6 +5,8 @@ const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3')
 const mime = require('mime-types')
 const Redis = require('ioredis')
 
+
+// Add your redis url below
 const publisher = new Redis('')
 
 
@@ -12,6 +14,7 @@ const publisher = new Redis('')
 const s3Client = new S3Client({
     region: 'us-east-1',
     credentials: {
+        // Add your aws credential here, if you want to try this project
         accessKeyId: '',
         secretAccessKey: ''
     }
