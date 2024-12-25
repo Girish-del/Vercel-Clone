@@ -3,6 +3,9 @@ const path = require('path')
 const fs = require('fs')
 const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3')
 const mime = require('mime-types')
+const Redis = require('ioredis')
+
+const publisher = new Redis('rediss://default:AVNS_aMX20QW47_vcq1WqlIG@caching-111dc4bc-atharvapatil-cc88.l.aivencloud.com:16706')
 
 
 // Creating an S3 client
@@ -16,8 +19,13 @@ const s3Client = new S3Client({
 
 const PROJECT_ID = process.env.PROJECT_ID
 
+function publishLog(log){
+    publisher.publish(`logs:${PROJECT_ID}`, JSON.stringify({log}))
+}
+
 async function init(){
     console.log("script.js Executing started")
+    publishLog('Build Started ......')
 
     const outDirPath = path.join(__dirname, 'output')
 
@@ -25,22 +33,27 @@ async function init(){
 
     p.stdout.on('data', function (data) {
         console.log(data.toString())
+        publishLog(data.toString())
     })
 
     p.stdout.on('error', function (data) {
         console.log('Error', data.toString())
+        publishLog(`error: ${data.toString()}`)
     })
 
     p.on('close', async function(){
         console.log('Build Complete')
+        publishLog(`Build Complete..`)
         const distFolderPath = path.join(__dirname, 'output', 'dist')
         const distFolderContents = fs.readdirSync(distFolderPath, {recursive: true})
 
+        publishLog(`Uploading Started....`)
         for(const file of distFolderContents){
             const filePath = path.join(distFolderPath, file)
             if(fs.lstatSync(filePath).isDirectory()) continue;
 
             console.log("Uploading..... ", filePath)
+            publishLog(`Uploading ${file}`)
 
             const command = new PutObjectCommand({
                 Bucket: 'vercel-clone-project-01',
@@ -52,7 +65,9 @@ async function init(){
             await s3Client.send(command)
 
             console.log("Uploaded.....", filePath)
+            publishLog(`Uploaded... ${file}`)
         }
+        publishLog(`Done//.......`)
         console.log('Done........')
     })
 }
